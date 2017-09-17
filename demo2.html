@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>vuex学习demo</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=0"/>
+	<script type="text/javascript" src="./res/vue.js"></script>
+	<script type="text/javascript" src="./res/vuex.js"></script>
+	<script type="text/javascript" src="./res/zepto.js"></script>
+</head>
+<body>
+	<h3 class="tac">两个非父子组件通信（event-bus）</h3>
+	<div class="father">
+		<video-board ref="videoBoardRef"></video-board>
+
+		<control-bar ref="controlBarRef"></control-bar>
+	</div>
+
+	<template id="videoBoard">
+		<div class="video-board">
+			<h3 class="pt60 cfff">当前黑板状态: {{state}}</h3>
+			<button @click="play(0)">播放直播</button>
+			<button @click="play(1)">播放录播</button>
+		</div>
+	</template>
+
+	<template id="controlBar">
+		<div class="control-bar-box clearfix">
+			<span class="fl">当前状态: {{state}}</span>
+			<button @click="play" v-show="state" class="fr">play</button>
+			<button @click="close" v-show="!state" class="fr">close</button>
+		</div>
+	</template>
+
+	<script type="text/javascript">
+
+		var vm, bus;
+		var GData = {
+			// state: 'none', //living, record, none
+		};
+
+		$(document).ready(function(){
+			initComponents();
+			initBus();
+			initVue();
+		});
+	
+		function initComponents () {
+			Vue.component('video-board',{
+				template: '#videoBoard',
+				data: function(){
+					return {
+						state: 'none'
+					};
+				},
+				methods: {
+					play: function(type) { 
+						var state = type ? 'record':'living';
+						this.state = state;
+						bus.$emit('change-state', {'state': state, target: this});
+					}
+				}
+			})
+
+			Vue.component('control-bar', {
+				template: '#controlBar',
+				data: function(){
+					return {
+						state: 'none'
+					};
+				},
+				methods: {
+					play: function(){
+						this.state = 'living';
+						bus.$emit('change-state', {'state': 'living', target: this});
+					},
+
+					close: function(){
+						this.state = 'none';
+						bus.$emit('change-state', {'state': 'none', target: this});
+					}
+				}
+			})
+		}
+
+		function initVue () {
+			vm = new Vue({
+				el: '.father',
+				data: GData
+			})
+		}
+
+		function initBus(){
+			bus = new Vue();
+
+			bus.$on('change-state', function(obj){ //通过订阅来实现两个组件间的通信
+				if(obj.target.$el.className.indexOf('video-board') > -1){
+					//控制条点击
+					vm.$refs['controlBarRef'].state = obj.state;
+				}else{
+					vm.$refs['videoBoardRef'].state = obj.state;
+				}
+			});
+		}
+	</script>
+
+	<style>
+		.tac{text-align: center;}
+		.video-board{position: relative; background: #000; color: #fff; width: 100%; height: 199px; text-align: center;}
+		.pt60{padding-top: 60px;}
+		.cfff{color: #fff;}
+		.control-bar-box{margin-top: 30px; border: solid 1px #000;}
+		.fl{float: left;}
+		.fr{float: right;}
+		.clearfix{clear: both;zoom: 1;}
+		.clearfix:after,.clearfix:before{display: table;content: ""}
+		.clearfix:after{clear: both;}
+	</style>
+</body>
+</html>

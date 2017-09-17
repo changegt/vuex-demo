@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>vuex学习demo</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=0"/>
+	<script type="text/javascript" src="./res/vue.js"></script>
+	<script type="text/javascript" src="./res/vuex.js"></script>
+	<script type="text/javascript" src="./res/zepto.js"></script>
+</head>
+<body>
+	<h3 style="text-align: center;">父子组件通信</h3>
+	<div class="father">
+		<video-board :state="state" @change-state="changeState"></video-board>
+	</div>
+
+	<template id="videoBoard">
+		<div class="control-bar" style="position: relative; background: #000; color: #fff; width: 100%; height: 199px; text-align: center;">
+			<h3 style="color: #fff ; padding-top: 60px;">当前黑板状态: {{state}}</h3>
+			<button @click="play(0)">播放直播</button>
+			<button @click="play(1)">播放录播</button>
+		</div>
+	</template>
+
+	<script type="text/javascript">
+
+		var vm ;
+		var GData = {
+			state: 'none', //living, record, none
+		};
+
+		$(document).ready(function(){
+			initComponents();
+			initVue();
+		});
+	
+		function initComponents () {
+			Vue.component('video-board',{
+				template: '#videoBoard',
+				props: ['state'],
+				data: function(){
+					return {};
+				},
+				methods: {
+					play: function(type) { 
+						var state = type ? 'record':'living';
+						this.$emit('change-state', {'state': state});
+					}
+				}
+			})
+		}
+
+		function initVue () {
+			vm = new Vue({
+				el: '.father',
+				data: GData,
+				methods: {
+					changeState: function(state){
+						this.state = state;
+					}
+				},
+				watch: {
+					state: function(){
+						alert('state改变');
+					}
+				}
+			})
+		}
+	</script>
+</body>
+</html>
