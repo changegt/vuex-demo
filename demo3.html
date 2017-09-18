@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>vuex学习demo</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=0"/>
+	<script type="text/javascript" src="./res/vue.js"></script>
+	<script type="text/javascript" src="./res/vuex.js"></script>
+	<script type="text/javascript" src="./res/zepto.js"></script>
+</head>
+<body>
+	<h3 class="tac">两个非父子组件通信（event-bus）</h3>
+	<div class="father">
+		<video-board ref="videoBoardRef"></video-board>
+
+		<control-bar ref="controlBarRef"></control-bar>
+	</div>
+
+	<template id="videoBoard">
+		<div class="video-board">
+			<h3 class="pt60 cfff">当前黑板状态: {{status}}</h3>
+			<button @click="changeStatus(0)">播放直播</button>
+			<button @click="changeStatus(1)">播放录播</button>
+		</div>
+	</template>
+
+	<template id="controlBar">
+		<div class="control-bar-box clearfix">
+			<span class="fl">当前状态: {{status}}</span>
+			<button @click="play" v-show="status == 'none'" class="fr">play</button>
+			<button @click="close" v-show="status != 'none'" class="fr">close</button>
+		</div>
+	</template>
+
+	<script type="text/javascript">
+
+		var vm, bus, store;
+
+		$(document).ready(function(){
+			initStore();
+			initComponents();
+			initVue();
+		});
+	
+		function initStore(){
+			var boardModule = {
+				state: {
+					status: 'none'
+				},
+				mutations: {
+					changeStatus: function(state, payload){
+						state.status = payload.newStatus;
+					}
+				},
+				actions: {
+					changeStatus: function (context, payload){
+						debugger;
+						context.commit('changeStatus', payload);
+					}
+				}
+			};
+
+			var barModule = {
+				state: {
+					status: 'none'
+				},
+				mutations: {
+					play: function(state, payload){
+						state.status = payload.newStatus;
+					},
+					close: function(state, payload){
+						state.status = payload.newStatus;
+					}
+				},
+				actions: {
+					play: function (context, payload){
+						context.commit('play', payload);
+					},
+					close: function (context, payload){
+						context.commit('close', payload);
+					}
+				}
+			};
+
+			store = new Vuex.Store({
+				modules: {
+					board: boardModule,
+					bar: barModule
+				},
+				getters: {
+					status: 'none'
+				}
+			});
+		}
+
+		function initComponents () {
+			Vue.component('video-board',{
+				template: '#videoBoard',
+				data: function(){
+					return {};
+				},
+				computed: {
+					status: function(){
+						return store.state.board.status;
+					}
+				},
+				methods: {
+					changeStatus: function(type) { 
+						var status = type ? 'record':'living';
+						store.dispatch('changeStatus', { newStatus: status });
+					}
+				}
+			})
+
+			Vue.component('control-bar', {
+				template: '#controlBar',
+				data: function(){
+					return {};
+				},
+				computed: {
+					status: function(){
+						return store.state.bar.status;
+					}
+				},
+				methods: {
+					play: function(){
+						store.dispatch('play', { newStatus: 'living' });
+					},
+
+					close: function(){
+						store.dispatch('close', { newStatus: 'none' });
+					}
+				}
+			})
+		}
+
+		function initVue () {
+			vm = new Vue({
+				el: '.father',
+				data: {}
+			})
+		}
+	</script>
+
+	<style>
+		.tac{text-align: center;}
+		.video-board{position: relative; background: #000; color: #fff; width: 100%; height: 199px; text-align: center;}
+		.pt60{padding-top: 60px;}
+		.cfff{color: #fff;}
+		.control-bar-box{margin-top: 30px; border: solid 1px #000;}
+		.fl{float: left;}
+		.fr{float: right;}
+		.clearfix{clear: both;zoom: 1;}
+		.clearfix:after,.clearfix:before{display: table;content: ""}
+		.clearfix:after{clear: both;}
+	</style>
+</body>
+</html>
