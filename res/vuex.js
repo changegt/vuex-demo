@@ -476,6 +476,7 @@ function resetStoreVM (store, state, hot) {
   }
 }
 
+//TODO
 function installModule (store, rootState, path, module, hot) {
   var isRoot = !path.length;
   var namespace = store._modules.getNamespace(path);
@@ -605,7 +606,9 @@ function registerMutation (store, type, handler, local) {
   });
 }
 
+//TODO
 function registerAction (store, type, handler, local) {
+  //handler 指向传递进来的actions方法，所以handler第一个参数就是context
   var entry = store._actions[type] || (store._actions[type] = []);
   entry.push(function wrappedActionHandler (payload, cb) {
     var res = handler({
