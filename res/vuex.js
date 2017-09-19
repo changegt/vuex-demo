@@ -269,6 +269,8 @@ var Store = function Store (options) {
   var dispatch = ref.dispatch;
   var commit = ref.commit;
   this.dispatch = function boundDispatch (type, payload) {
+    //TODO
+    // dispatch(type, payload); //undefine
     return dispatch.call(store, type, payload)
   };
   this.commit = function boundCommit (type, payload, options) {
@@ -281,10 +283,15 @@ var Store = function Store (options) {
   // init root module.
   // this also recursively registers all sub-modules
   // and collects all module getters inside this._wrappedGetters
+   // 初始化 root module
+  // 同时也会递归初始化所有子module
+  // 并且收集所有的getters至this._wrappedGetters
   installModule(this, state, [], this._modules.root);
 
   // initialize the store vm, which is responsible for the reactivity
   // (also registers _wrappedGetters as computed properties)
+  // 重置vm实例状态
+  // 同时在这里把getters转化为computed(计算属性)
   resetStoreVM(this, state);
 
   // apply plugins

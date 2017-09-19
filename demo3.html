@@ -19,8 +19,8 @@
 	<template id="videoBoard">
 		<div class="video-board">
 			<h3 class="pt60 cfff">当前黑板状态: {{status}}</h3>
-			<button @click="changeStatus(0)">播放直播</button>
-			<button @click="changeStatus(1)">播放录播</button>
+			<button @click="playRecord">播放直播</button>
+			<button @click="playLiving">播放录播</button>
 		</div>
 	</template>
 
@@ -43,52 +43,20 @@
 		});
 	
 		function initStore(){
-			var boardModule = {
+			store = new Vuex.Store({
 				state: {
 					status: 'none'
 				},
 				mutations: {
 					changeStatus: function(state, payload){
-						state.status = payload.newStatus;
+						state.status = payload.status;
 					}
 				},
 				actions: {
-					changeStatus: function (context, payload){
-						debugger;
-						context.commit('changeStatus', payload);
+					changeStatus: function(context, payload){ 
+						//context 指代 一个和store示例具有部分相同方法和属性的一个对象
+						context.commit('changeStatus', { status : payload.newStatus });
 					}
-				}
-			};
-
-			var barModule = {
-				state: {
-					status: 'none'
-				},
-				mutations: {
-					play: function(state, payload){
-						state.status = payload.newStatus;
-					},
-					close: function(state, payload){
-						state.status = payload.newStatus;
-					}
-				},
-				actions: {
-					play: function (context, payload){
-						context.commit('play', payload);
-					},
-					close: function (context, payload){
-						context.commit('close', payload);
-					}
-				}
-			};
-
-			store = new Vuex.Store({
-				modules: {
-					board: boardModule,
-					bar: barModule
-				},
-				getters: {
-					status: 'none'
 				}
 			});
 		}
@@ -101,13 +69,16 @@
 				},
 				computed: {
 					status: function(){
-						return store.state.board.status;
+						return store.state.status;
 					}
 				},
 				methods: {
-					changeStatus: function(type) { 
-						var status = type ? 'record':'living';
-						store.dispatch('changeStatus', { newStatus: status });
+					playRecord: function() { 
+						store.dispatch('changeStatus', { newStatus: 'record' });
+					},
+
+					playLiving: function(){
+						store.dispatch('changeStatus', { newStatus: 'living' });	
 					}
 				}
 			})
@@ -119,16 +90,16 @@
 				},
 				computed: {
 					status: function(){
-						return store.state.bar.status;
+						return store.state.status;
 					}
 				},
 				methods: {
 					play: function(){
-						store.dispatch('play', { newStatus: 'living' });
+						store.dispatch('changeStatus', { newStatus: 'living' });
 					},
 
 					close: function(){
-						store.dispatch('close', { newStatus: 'none' });
+						store.dispatch('changeStatus', { newStatus: 'none' });
 					}
 				}
 			})
