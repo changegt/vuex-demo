@@ -27,8 +27,8 @@
 	<template id="controlBar">
 		<div class="control-bar-box clearfix">
 			<span class="fl">当前状态: {{state}}</span>
-			<button @click="play" v-show="state" class="fr">play</button>
-			<button @click="close" v-show="!state" class="fr">close</button>
+			<button @click="play" v-show="state == 'none'" class="fr">play</button>
+			<button @click="close" v-show="state != 'none'" class="fr">close</button>
 		</div>
 	</template>
 
